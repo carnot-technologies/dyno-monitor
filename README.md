@@ -81,6 +81,16 @@ A set of errors from the platform we will aim to detect. Please see the [full se
   2020-05-21T09:23:13.271104+00:00 heroku[web.1]: source=web.1 dyno=heroku.103402527.ea2fc07d-d807-4864-a2c3-5cac3531c914 sample#memory_total=906.01MB sample#memory_rss=835.69MB sample#memory_cache=0.29MB sample#memory_swap=70.03MB sample#memory_pgpgin=485104pages sample#memory_pgpgout=282335pages sample#memory_quota=1024.00MB
   ```
 
+- Worker dyno metrics (`source=heroku`, `dyno=worker`)
+  ```
+  2020-05-21T13:37:36.303415+00:00 heroku[worker.1]: Starting process with command `python worker-manager.py`
+  2020-05-21T13:37:36.970517+00:00 heroku[worker.1]: State changed from starting to up
+  2020-05-21T13:37:51.999653+00:00 heroku[worker.1]: source=worker.1 dyno=heroku.80178655.00ef45ff-41d2-40c8-87c8-a1f847fe2576 sample#memory_total=407.75MB sample#memory_rss=392.41MB sample#memory_cache=15.34MB sample#memory_swap=0.00MB sample#memory_pgpgin=129484pages sample#memory_pgpgout=27656pages sample#memory_quota=512.00MB
+  2020-05-21T13:38:13.88587+00:00 heroku[worker.1]: source=worker.1 dyno=heroku.80178655.00ef45ff-41d2-40c8-87c8-a1f847fe2576 sample#memory_total=409.36MB sample#memory_rss=394.02MB sample#memory_cache=15.34MB sample#memory_swap=0.00MB sample#memory_pgpgin=129906pages sample#memory_pgpgout=27666pages sample#memory_quota=512.00MB
+  2020-05-21T13:38:35.665206+00:00 heroku[worker.1]: source=worker.1 dyno=heroku.80178655.00ef45ff-41d2-40c8-87c8-a1f847fe2576 sample#load_avg_1m=0.30
+  2020-05-21T13:38:35.665308+00:00 heroku[worker.1]: source=worker.1 dyno=heroku.80178655.00ef45ff-41d2-40c8-87c8-a1f847fe2576 sample#memory_total=409.54MB sample#memory_rss=394.20MB sample#memory_cache=15.34MB sample#memory_swap=0.00MB sample#memory_pgpgin=130055pages sample#memory_pgpgout=27769pages sample#memory_quota=512.00MB
+  ```
+
 - Heroku Postgres Health logs (`source=app`, `dyno=heroku-postgres`)
   ```
   2020-05-21T09:31:00+00:00 app[heroku-postgres]: source=HEROKU_POSTGRESQL_ROSE addon=postgresql-clear-67109 sample#current_transaction=2445712089 sample#db_size=37066259591bytes sample#tables=150 sample#active-connections=84 sample#waiting-connections=0 sample#index-cache-hit-rate=0.98701 sample#table-cache-hit-rate=0.96767 sample#load-avg-1m=0.06 sample#load-avg-5m=0.115 sample#load-avg-15m=0.165 sample#read-iops=17.711 sample#write-iops=6.7273 sample#tmp-disk-used=33849344 sample#tmp-disk-available=72944943104 sample#memory-total=4044972kB sample#memory-free=87596kB sample#memory-cached=3350760kB sample#memory-postgres=375912kB     
@@ -94,7 +104,11 @@ A set of errors from the platform we will aim to detect. Please see the [full se
   2020-05-21T09:33:12+00:00 app[postgres.26875]: [RED] [1846263-2]  sql_error_code = 23503 DETAIL:  Key (device_fk_id)=(5188) is not present in table "devices_device".
   ```
 
-- Get stream of logs using heroku3 python library
-  ```
-  app.stream_log(source="app", dyno="worker", lines=10)
-  ```
+### Accessing heroku logs
+
+- You can get stream of logs using heroku3 python library
+```python
+import heroku3
+app = heroku3.from_key(<YOUR_API_KEY>).app(<YOUR_APP_NAME>)
+app.stream_log(source="app", dyno="worker", lines=10)
+```

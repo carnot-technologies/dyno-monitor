@@ -31,7 +31,7 @@ if __name__ == '__main__':
                     logging.debug(line.decode('utf-8'))
 
             except Exception:
-                print(traceback.format_exc())
+                logging.error(traceback.format_exc())
             # break
 
     except KeyboardInterrupt:
