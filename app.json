@@ -22,7 +22,7 @@
     },
     "HEROKU_API_KEY": {
       "required": true
-    },
+    }
   },
   "formation": {
     "web": {
