@@ -27,7 +27,7 @@ def parse(line, app_name, source, dyno):
             logging.warning("Detected: {}".format(rule_properties['search_key']))
 
             # Log in the raw log table
-            el = ErrorLog(app_fk=rule_properties['app'],
+            el = ErrorLog(app_fk_id=rule_properties['app'],
                           dyno_fk_id=rule_properties['dyno_fk_id'],
                           category=rule_properties['category'],
                           source=root,
