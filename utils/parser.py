@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils.timezone import now
 from datetime import timedelta
 from logs.models import ErrorLog
-from utils.mail import mail_admins
+from utils.mail import send_email
 from utils.cacher import Cacher
 from utils.heroku import HerokuInterface
 
@@ -80,7 +80,7 @@ def notify(rp, action_taken=False):
             sub = "{} Error Detected in {}:{}".format(rp['category'], rp['app'], rp['dyno'])
             msg = "Atleast {} error(s) of type {} detected in the last {} seconds".format(rp['least_count'], rp['category'], rp['time_window'])
             msg += "Action taken: {}".format(rp['action']) if action_taken else ""
-            mail_admins(sub, msg)
+            send_email(sub, msg)
             Cacher().set_last_email_time(rp['app'], rp['dyno'], rp['category'])
             return True
 

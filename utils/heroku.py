@@ -1,5 +1,6 @@
 import heroku3
 import settings
+import logging
 
 
 class HerokuInterface(object):
@@ -12,9 +13,12 @@ class HerokuInterface(object):
             # print("Heroku interface already exists ...")
             return
 
+        if not settings.HEROKU_API_KEY:
+            logging.error("Please specify HEROKU_API_KEY in the environment")
+
         HerokuInterface.instance = heroku3.from_key(settings.HEROKU_API_KEY)
         HerokuInterface.apps = HerokuInterface.instance.apps()
-        print("Heroku interface initiated ...")
+        logging.warning("Heroku interface initiated ...")
         return
 
     def get_instance(self):

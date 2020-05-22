@@ -127,27 +127,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Email recipient settings
-STAFF = [
-    'backend@carnot.co.in',
-]
-
-ADMINS = (
-    ('PJ', '***REMOVED***'),
-    # ('BK', 'backend-emails@carnot.co.in'),
-)
-MANAGERS = ADMINS
-
-
-# Email settings.
-# @TODO: Fetch from environment
-EMAIL_HOST = '***REMOVED***'
-EMAIL_PORT = 587
-EMAIL_HOST_PASSWORD = '***REMOVED***'
-EMAIL_HOST_USER = '***REMOVED***'
-EMAIL_USE_TLS = True
-SERVER_EMAIL = '***REMOVED***'
-
 # LOGGING SETTINGS
 LOGGING = {
     'version': 1,
