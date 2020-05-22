@@ -41,6 +41,10 @@ if __name__ == '__main__':
     logging.info("Starting Dyno Monitor " + settings.ENVIRONMENT)
     threading.Timer(settings.SENTINAL_THREAD_PERIOD, sentinal).start()
 
+    if not settings.HEROKU_API_KEY:
+        logging.error("Please specify HEROKU_API_KEY in the environment. Exiting Dyno Monitor")
+        sys.exit(0)
+
     try:
         # List all seperate log sources and create a thread for each
         for logsrc in list(settings.RULES.keys()):
