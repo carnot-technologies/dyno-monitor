@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+from settings import *
 import os
 import django_heroku
 
@@ -38,6 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'dynomonitor',
+    'dynos.apps.DynosConfig',
+    'rules.apps.RulesConfig',
+    'logs.apps.LogsConfig'
 ]
 
 MIDDLEWARE = [
@@ -190,6 +195,12 @@ LOGGING = {
         }
     }
 }
+
+# Generic Word Seperator
+SEPERATOR = ':'
+
+# Log Filter & Rules
+RULES = {}
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
