@@ -1,3 +1,4 @@
+import os
 import settings
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -29,9 +30,18 @@ def send_email(subject, message, recipients=RECIPIENTS):
     smtpObj.close()
 
 
-def mail_admins(subject, message, prefix=settings.MAIL_PREFIX):
+def send_email_threaded(subject, message, prefix=settings.MAIL_PREFIX):
     if settings.ENABLE_EMAILS:
         modsub = prefix + " " + subject
         t = Thread(target=send_email, args=(modsub, message,))
         t.start()
     return True
+
+
+def mail_admins(subject, body):
+    if settings.ENABLE_EMAILS:
+        from django.core.mail import mail_admins as django_mail_admins
+        prefix = os.environ.get('APP_NAME', 'DEFAULT')
+        modsub = prefix + " - " + subject
+        t = Thread(target=django_mail_admins, args=(modsub, body,))
+        t.start()

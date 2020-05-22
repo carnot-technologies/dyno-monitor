@@ -37,6 +37,9 @@ class HerokuInterface(object):
         self.get_apps()[app_name].process_formation()[dyno_type].scale(count)
         return count
 
+    def restart_app(self, app_name):
+        self.get_apps()[app_name].restart()
+
     def restart_dynos(self, app_name, dyno_type):
         for dyno in self.get_apps()[app_name].dynos()[dyno_type]:
             dyno.restart()

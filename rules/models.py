@@ -5,9 +5,9 @@ from dynos.models import Dyno
 
 
 ACTION_CHOICES = (
-    ('No Action', 'No Action'),
-    ('Restart Dyno', 'Restart Dyno'),
-    ('Restart App', 'Restart App'),
+    (None, 'no-action'),
+    ('restart-dyno', 'restart-dyno'),
+    ('restart-app', 'restart-app'),
 )
 
 LOG_SOURCE_CHOICES = (
@@ -35,7 +35,7 @@ class HError(models.Model):
     time_window = models.IntegerField(blank=False, null=False, default=300, validators=[MinValueValidator(60), MaxValueValidator(3600)])
     email_alert = models.BooleanField(blank=False, null=False, default=False)
     log = models.BooleanField(blank=False, null=False, default=False)
-    action = models.CharField(max_length=15, choices=ACTION_CHOICES, default='No Action')
+    action = models.CharField(blank=True, null=True, max_length=15, choices=ACTION_CHOICES, default=None)
     log_source = models.CharField(max_length=40, choices=LOG_SOURCE_CHOICES, default='heroku')
     log_dyno = models.CharField(max_length=40, blank=False, null=False, default='router')
 
@@ -72,7 +72,7 @@ class RError(models.Model):
     time_window = models.IntegerField(blank=False, null=False, default=300, validators=[MinValueValidator(60), MaxValueValidator(3600)])
     email_alert = models.BooleanField(blank=False, null=False, default=False)
     log = models.BooleanField(blank=False, null=False, default=False)
-    action = models.CharField(max_length=15, choices=ACTION_CHOICES, default='No Action')
+    action = models.CharField(blank=True, null=True, max_length=15, choices=ACTION_CHOICES, default=None)
     log_source = models.CharField(max_length=40, choices=LOG_SOURCE_CHOICES, default='heroku')
     log_dyno = models.CharField(max_length=40, blank=False, null=False, default='router')
 
