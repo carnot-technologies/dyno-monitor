@@ -1,0 +1,51 @@
+{
+  "name": "Heroku Dyno Monitor",
+  "description": "Detect, alert and trigger actions on Rxx, Hxx errors in your Heroku App",
+  "keywords": [
+    "productivity",
+    "python",
+    "django",
+    "dyno"
+  ],
+  "website": "https://github.com/carnot-technologies/dyno-monitor",
+  "repository": "https://github.com/carnot-technologies/dyno-monitor",
+  "logo": "https://simpleicons.org/icons/django.svg",
+  "success_url": "/admin",
+  "scripts": {
+  },
+  "env": {
+    "DATABASE_URL": {
+      "required": true
+    },
+    "REDIS_URL": {
+      "required": true
+    },
+    "HEROKU_API_KEY": {
+      "required": true
+    },
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "hobby"
+    },
+    "monitor": {
+      "quantity": 1,
+      "size": "hobby"
+    }
+  },
+  "image": "heroku/python",
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev"
+    },
+    {
+      "plan": "heroku-redis:hobby-dev"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
