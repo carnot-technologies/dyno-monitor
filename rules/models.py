@@ -22,6 +22,7 @@ class HError(models.Model):
     HXX_ERROR_CHOICES = (
         ('H10', 'H10'),
         ('H12', 'H12'),
+        ('H14', 'H14'),
         ('H80', 'H80'),
         ('H99', 'H99'),
     )
