@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'django_extensions',
     'dynomonitor',
     'dynos.apps.DynosConfig',
     'rules.apps.RulesConfig',
@@ -201,6 +203,10 @@ SEPERATOR = ':'
 
 # Log Filter & Rules
 RULES = {}
+
+# API reponse settings
+DEFAULT_RESPONSE_AS_LIST = {"status": False, "message": "Invalid request", "data": []}
+DEFAULT_RESPONSE_AS_DICT = {"status": False, "message": "Invalid request", "data": {}}
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
