@@ -14,12 +14,6 @@
   "scripts": {
   },
   "env": {
-    "DATABASE_URL": {
-      "required": true
-    },
-    "REDIS_URL": {
-      "required": true
-    },
     "HEROKU_API_KEY": {
       "required": true
     }
