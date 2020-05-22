@@ -85,7 +85,7 @@ class RError(models.Model):
         res.pop('_state', None)
         res['app'] = self.dyno_fk.app_fk.name
         res['dyno'] = self.dyno_fk.name
-        res['search_key'] = 'code=' + self.category
+        res['search_key'] = 'Error ' + self.category
         return res
 
     # Override unicode to return something meaningful
