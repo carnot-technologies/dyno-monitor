@@ -12,6 +12,7 @@
   "logo": "https://simpleicons.org/icons/django.svg",
   "success_url": "/admin",
   "scripts": {
+    "postdeploy": "python manage.py migrate"
   },
   "env": {
     "HEROKU_API_KEY": {
