@@ -4,3 +4,4 @@
 
 python manage.py migrate
 python manage.py createsuperuser --no-input
+python manage.py shell --command="from utils.rule_helper import auto_detect_heroku_apps; auto_detect_heroku_apps()"
