@@ -21,27 +21,27 @@
     },
     "DJANGO_SUPERUSER_USERNAME": {
       "required": true,
-      "default": "admin",
+      "value": "admin",
       "description": "Username for the admin account. Admin login is required to access the admin interface from where you can manage your alerts"
     },
     "DJANGO_SUPERUSER_PASSWORD": {
       "required": true,
-      "default": "abcd12345",
+      "value": "abcd12345",
       "description": "Password for the admin account. Must be at least 8 characters long"
     },
     "DJANGO_SUPERUSER_EMAIL": {
       "required": true,
-      "default": "admin@localhost",
+      "value": "admin@localhost",
       "description": "Must be a valid email address. If superuser creation fails, you will have to create one manually"
     },
     "RUN_WITHIN_WEB": {
       "required": false,
-      "default": "1",
-      "description": "Default: 1. Possible values: 0/1. If 1, the monitor script will run within the web dyno. In such a case, the `monitor` dyno must be switched off. However this should be zero if you scale the web dyno to more than 1"
+      "value": "0",
+      "description": "Possible values: 0/1. If 1, the monitor script will run within the web dyno. In such a case, the `monitor` dyno must be switched off. However this should be zero if you scale the web dyno to more than 1"
     },
     "LOGGING_LEVEL": {
       "required": false,
-      "default": "INFO",
+      "value": "INFO",
       "description": "Default: INFO. This determines the logging level of your app"
     }
   },
@@ -51,7 +51,7 @@
       "size": "free"
     },
     "monitor": {
-      "quantity": 0,
+      "quantity": 1,
       "size": "free"
     }
   },

@@ -20,5 +20,5 @@ application = get_wsgi_application()
 from utils.rule_helper import build_rules
 build_rules()
 
-if bool(int(os.environ.get('RUN_WITHIN_WEB', 1))):
+if bool(int(os.environ.get('RUN_WITHIN_WEB', 0))):
     subprocess.Popen([sys.executable, 'monitor.py'])
