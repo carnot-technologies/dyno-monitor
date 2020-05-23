@@ -23,6 +23,7 @@ class Dyno(models.Model):
     # FK
     app_fk = models.ForeignKey(App, blank=False, null=False, on_delete=models.CASCADE)
     name = models.CharField(blank=False, null=False, max_length=40)
+    cnt = models.IntegerField(blank=True, null=True, default=0)
 
     class Meta:
         unique_together = ['app_fk', 'name']
