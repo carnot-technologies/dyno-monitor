@@ -45,16 +45,6 @@
       "description": "Default: INFO. This determines the logging level of your app"
     }
   },
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "free"
-    },
-    "monitor": {
-      "quantity": 1,
-      "size": "free"
-    }
-  },
   "image": "heroku/python",
   "addons": [
     {
