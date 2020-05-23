@@ -7,6 +7,11 @@ from dynos.models import Dyno
 from utils.heroku import HerokuInterface
 
 
+def db_table_exists(table_name):
+    from django.db import connection
+    return table_name in connection.introspection.table_names()
+
+
 def build_rules():
     """
     This function is run once at startup to construct the RULES dictionary in settings
@@ -15,6 +20,9 @@ def build_rules():
     2. Which rules to apply for a particular log filter
     3. Properties of each rule
     """
+    if not db_table_exists(HError._meta.db_table):
+        return
+
     logging.warning("Building Rules")
     hrules = HError.objects.all()
     for hrule in hrules:
