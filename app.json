@@ -34,6 +34,11 @@
       "default": "admin@localhost",
       "description": "Must be a valid email address. If superuser creation fails, you will have to create one manually"
     },
+    "RUN_WITHIN_WEB": {
+      "required": true,
+      "default": "1",
+      "description": "Possible values: 0/1. If 1, the monitor script will run within the web dyno. In such a case, the `monitor` dyno must be switched off. However this should be zero if you scale the web dyno to more than 1"
+    },
     "LOGGING_LEVEL": {
       "required": false,
       "default": "INFO",
@@ -46,7 +51,7 @@
       "size": "free"
     },
     "monitor": {
-      "quantity": 1,
+      "quantity": 0,
       "size": "free"
     }
   },
