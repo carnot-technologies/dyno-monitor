@@ -1,32 +1,98 @@
 # Heroku Dyno Monitoring & Alerting
 
-This project is useful for keeping a tab on dyno performance metrics across your different heroku apps. Features to include:
+This project is useful for keeping a tab on heroku dyno errors and performance metrics across your different heroku apps. In its final form, the app will contain the following (hopefully):
 
 ### Error Monitoring
 
-- Dyno Errors Monitoring (R13, R14 memory errors and other R* errors)
-- Web Dyno Specific Error Monitoring (H12, H13, H18 and others)
-- Web Dyno Failed Requests Monitoring (5xx errors)
+- :heavy_check_mark: **Generic Dyno Error** Monitoring (R13, R14 memory errors and other Rxx errors). You can configure the Rxx Error Rules from the admin interface
+- :heavy_check_mark: **Web Specific Dyno Error** Monitoring (H12, H13, H18 and other Hxx errors). Configuration via admin interface
+- :hourglass_flowing_sand: **Web Dyno Failed Requests** Monitoring (5xx errors)
+
+### Alerting
+
+- :heavy_check_mark: **Email alerts** Setup email by entering your SMTP server details and recipients. Then configure alerts from the admin dashboard
+- :hourglass_flowing_sand: **SMS alerts** Configure SMS alerts by entering your Infobip SMS provider details. If you use some other service (twilio, msg91 etc) you can easily plugin your own implementation
+
+### Actions
+
+- :heavy_check_mark: **Restart actions** Perform basic recovery actions like dyno restart or app restart when a certain alert is breached
 
 ### Metrics Collection
 
 For dynos that have metrics logging enabled, the following metrics will be collected
-- Dyno RAM usage data (to be verified)
-- Dyno Load %CPU (to be verified)
+- :soon: **RAM usage** metric per dyno type. Collection and logging
+- :soon: **Load %CPU** per dyno type. Collection and logging
 
 ### Status Checks
 
-- **Web server** status checks. Specify the endpoint to check, frequency and timeout
-- **Redis instance** status check. Specify redis url, list name & threshold (for QL checking if required), frequency and timeout
-- **Postgres instance** status check. Specify the DB url, table name (to check for existence if required), frequency and timeout
+- :soon: **Web server** status checks. Specify the endpoint to check, frequency and timeout
+- :soon: **Redis instance** status checks. Specify redis url, list name & threshold (for QL checking if required), frequency and timeout
+- :soon: **Postgres instance** status check. Specify the DB url, table name (to check for existence if required), frequency and timeout
 
-### Alerting
+-----------------
+## Quick Start
 
-- You can configure email alerts by entering your email service details
-- You can configure SMS alerts by entering your infobip provider details or you can implement your own
+#### Deploy to Heroku
 
+To quickly get started and test the app, you can deploy this application on your heroku account servers. Fill up the pre-requisite environment variables and your app should be up within 5 minutes
 
-## Log Samples
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/carnot-technologies/dyno-monitor/tree/master)
+
+- Post deployment, the app creates all the required tables and the superuser account
+- It auto-detects all your heroku apps and dynos. This process can take upto a minute depending on the number of apps in your account
+- You can then visit your app's admin page at https://<your-app-name>.herokuapp.com/admin/ and start adding `Hxx Error` and `Rxx Error` rules against your dynos
+
+#### Environment Configuration
+
+- Required environment variables
+  - `HEROKU_API_KEY` - To access the logs from different heroku apps in your accounts for which alerts have been configured
+  - `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_PASSWORD`, `DJANGO_SUPERUSER_EMAIL` - These three variables are required at the start to create a superuser. Once a superuser is created, these can be removed
+
+- To enable emails, make sure the following environment variables are exported
+  ```bash
+  heroku config:set ENABLE_EMAILS=1
+  heroku config:set EMAIL_HOST=email-server.abc.com --app <YOUR_APP_NAME>
+  heroku config:set EMAIL_PORT=587 --app <YOUR_APP_NAME>
+  heroku config:set EMAIL_HOST_PASSWORD=xxxxxxxxxxxxxxxxxxxxx --app <YOUR_APP_NAME>
+  heroku config:set EMAIL_HOST_USER=xxxxxxxxxxxxxxxxxxxxx --app <YOUR_APP_NAME>
+  heroku config:set SERVER_EMAIL=postmaster@abc.com --app <YOUR_APP_NAME>
+  heroku config:set RECIPIENTS=admin.one@abc.com,admin.two@abc.com --app <YOUR_APP_NAME>
+  ```
+
+-----------------
+
+## How to configure and use?
+
+This is a python / django based application. Broadly you need the following to set it up:
+- `Python 3` - we have verified it on Python 3.6
+- `virtualenv` - or similar program to create and manage your virtual environment
+- `postgres` - access to a small postgres server instance for data logging and storage. RAM required less than 1GB
+- `redis` - a small fast-access cache for storing certain details. Less than 25 MB
+
+### Configure the environment
+
+- Setup the virtualenv and install all dependencies
+- Much of the application is controlled by its environment variables. A few variables are necessary, others are optional
+- Mandatory environment variables
+
+### Initial setup scripts
+
+- WIP
+
+--------------------
+
+## Log access and samples
+
+### Accessing heroku logs
+
+- Ideally the _right approach_ to consume heroku logs is to setup a [Syslog or HTTPS log drain](https://devcenter.heroku.com/articles/log-drains) and have a dedicated log server to parse the logs for you
+- But our basic assumption is we will not read a lot of (typically) large logs from applications, but look at the few but highly useful logs generated under `source=heroku`
+- We can get this stream of logs using heroku3 python library
+```python
+import heroku3
+app = heroku3.from_key(<YOUR_API_KEY>).app(<YOUR_APP_NAME>)
+app.stream_log(source="app", dyno="worker", lines=10)
+```
 
 ### Error Codes Log
 
@@ -103,12 +169,3 @@ A set of errors from the platform we will aim to detect. Please see the [full se
   2020-05-21T09:33:12+00:00 app[postgres.26875]: [RED] [1846263-1]  sql_error_code = 23503 ERROR:  insert or update on table "devices_devicelatestdata" violates foreign key constraint "devices_devicelatest_device_fk_id_c404589b_fk_devices_d"
   2020-05-21T09:33:12+00:00 app[postgres.26875]: [RED] [1846263-2]  sql_error_code = 23503 DETAIL:  Key (device_fk_id)=(5188) is not present in table "devices_device".
   ```
-
-### Accessing heroku logs
-
-- You can get stream of logs using heroku3 python library
-```python
-import heroku3
-app = heroku3.from_key(<YOUR_API_KEY>).app(<YOUR_APP_NAME>)
-app.stream_log(source="app", dyno="worker", lines=10)
-```
