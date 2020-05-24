@@ -1,4 +1,5 @@
 import time
+import json
 import redis
 import logging
 import settings
@@ -55,3 +56,10 @@ class Cacher(object):
     def set_last_email_time(self, app_name, dyno_name, category):
         topic = app_name + self.SEPERATOR + dyno_name + self.SEPERATOR + category
         return self.get_instance().hset(topic, 'last-email', int(time.time()))
+
+    def get_rules(self):
+        rules = self.get_instance().get('rules')
+        return json.loads(rules) if rules else {}
+
+    def set_rules(self, rules):
+        return self.get_instance().set('rules', json.dumps(rules))

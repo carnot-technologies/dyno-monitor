@@ -10,14 +10,17 @@ from utils.heroku import HerokuInterface
 
 
 def parse(line, app_name, source, dyno):
+    """
+    return: exit: boolean. If true, we can stop this parser thread
+    """
 
     # Validate if the line matches the source and dyno
     if source not in line or dyno not in line:
-        return
+        return False
 
     root = app_name + settings.SEPERATOR + source + settings.SEPERATOR + dyno
     if root not in settings.RULES:
-        return
+        return True
 
     # Find all rule filters to be applied
     for rule, rule_properties in settings.RULES[root].items():
@@ -39,6 +42,8 @@ def parse(line, app_name, source, dyno):
                     or ErrorLog.objects.filter(time_stamp__gte=now() - timedelta(seconds=rule_properties['time_window'])).count() >= rule_properties['least_count']:
                 performed = perform_actions(rule_properties)
                 notify(rule_properties, action_taken=performed)
+
+    return False
 
 
 def perform_actions(rp):

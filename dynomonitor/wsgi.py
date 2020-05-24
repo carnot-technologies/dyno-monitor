@@ -17,9 +17,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dynomonitor.settings')
 
 application = get_wsgi_application()
 
-from utils.rule_helper import build_rules
-build_rules()
-
 from scheduler import start
 start()
 

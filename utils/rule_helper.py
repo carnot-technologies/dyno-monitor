@@ -5,6 +5,7 @@ from rules.models import RError
 from dynos.models import App
 from dynos.models import Dyno
 from utils.heroku import HerokuInterface
+from utils.cacher import Cacher
 
 
 def db_table_exists(table_name):
@@ -24,6 +25,8 @@ def build_rules():
         return
 
     logging.warning("Building Rules")
+    settings.RULES.clear()
+
     hrules = HError.objects.all()
     for hrule in hrules:
         root = hrule.dyno_fk.app_fk.name + settings.SEPERATOR + hrule.log_source + settings.SEPERATOR + hrule.log_dyno
@@ -39,6 +42,45 @@ def build_rules():
             settings.RULES[root] = {}
 
         settings.RULES[root][rrule.category] = rrule.export_dict()
+
+
+def fetch_rules():
+    logging.info("Fetching Rules")
+    settings.RULES = Cacher().get_rules()
+    if not settings.RULES:
+        # If no rules found in cache, try rebuilding from the database
+        build_rules()
+        Cacher().set_rules(settings.RULES)
+
+
+def update_rule(rule):
+    """
+    `rule` is an instance of HError or RError rule objects
+    Update the local rules dictionary in settings and then update in redis
+    """
+    root = rule.dyno_fk.app_fk.name + settings.SEPERATOR + rule.log_source + settings.SEPERATOR + rule.log_dyno
+    logging.warning("Reloading Rule: {}:{}".format(root, rule.category))
+
+    if root not in settings.RULES:
+        settings.RULES[root] = {}
+    settings.RULES[root][rule.category] = rule.export_dict()
+
+    Cacher().set_rules(settings.RULES)
+
+
+def delete_rule(rule):
+    """
+    `rule` is an instance of HError or RError rule objects
+    Delete the rule from local rules dictionary in settings
+    Then update it in redis
+    """
+    root = rule.dyno_fk.app_fk.name + settings.SEPERATOR + rule.log_source + settings.SEPERATOR + rule.log_dyno
+    if root in settings.RULES:
+        if rule.category in settings.RULES[root]:
+            del settings.RULES[root][rule.category]
+            if not settings.RULES[root]:
+                del settings.RULES[root]
+            Cacher().set_rules(settings.RULES)
 
 
 def auto_detect_heroku_apps():

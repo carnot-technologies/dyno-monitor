@@ -8,6 +8,7 @@ from django.conf import settings
 
 from utils.heroku import HerokuInterface
 from utils.parser import parse
+from utils.rule_helper import fetch_rules
 
 
 def eprint(*args, **kwargs):
@@ -17,6 +18,7 @@ def eprint(*args, **kwargs):
 def sentinal():
     logging.info("Sentinal thread run. Total thread count: {}".format(len(threading.enumerate())))
     logging.debug(threading.enumerate())
+    fetch_rules()
     threading.Timer(settings.SENTINAL_THREAD_PERIOD, sentinal).start()
 
 
@@ -27,13 +29,24 @@ def stream_logs(app_name, source, dyno):
             for line in HerokuInterface().stream_log(app_name=app_name, source=source, dyno=dyno, timeout=100):
                 # Search for the required keywords in this line
                 # logging.debug(line.decode('utf-8'))
-                parse(line.decode('utf-8'), app_name, source, dyno)
+                exit = parse(line.decode('utf-8'), app_name, source, dyno)
+
+                if exit:
+                    break
+
+            root = app_name + settings.SEPERATOR + source + settings.SEPERATOR + dyno
+            exit = True if root not in settings.RULES else False
+
+            if exit:
+                break
 
         except Exception:
             logging.error(traceback.format_exc())
             # TODO: Handle specific exceptions here
             # Cooling period in case of errors
             time.sleep(1)
+
+    logging.info("Stopping log thread: {}:{}:{}".format(app_name, source, dyno))
 
 
 if __name__ == '__main__':
