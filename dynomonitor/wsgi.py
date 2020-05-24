@@ -20,5 +20,8 @@ application = get_wsgi_application()
 from utils.rule_helper import build_rules
 build_rules()
 
+from scheduler import start
+start()
+
 if bool(int(os.environ.get('RUN_WITHIN_WEB', 0))):
     subprocess.Popen([sys.executable, 'monitor.py'])

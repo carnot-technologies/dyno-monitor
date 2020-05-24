@@ -12,3 +12,11 @@ application = get_wsgi_application()
 from utils.rule_helper import build_rules
 
 build_rules()
+
+
+def blank():
+    """
+    Dummy function to prevent `imported but unsed` warnings in files where this is imported
+    Function does nothing
+    """
+    pass
