@@ -1,10 +1,10 @@
 # Heroku Dyno Monitoring & Alerting
 
-This project is useful for keeping a tab on heroku dyno errors and performance metrics across your different heroku apps. In its final form, the app will contain the following (hopefully):
-This project is aimed towards making the post deployment lifecycle easy and automated for the end users.
-
+This project is useful for keeping a tab on heroku dyno errors and performance metrics across your different heroku apps. This project is aimed towards making the post deployment lifecycle easy and automated for the end users.
 
 ![Heroku Dyno Management](https://github.com/carnot-technologies/dyno-monitor/blob/master/heroku.png)
+
+In its final form, the app will (hopefully) contain the following features:
 
 ### Error Monitoring
 
