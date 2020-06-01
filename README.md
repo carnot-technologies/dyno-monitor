@@ -2,10 +2,11 @@
 
 # Heroku Dyno Monitoring & Alerting
 
-**Your Cloudwatch for Heroku. Monitor dyno errors and performance across all your heroku apps and take automated actions!**
+**Your Cloudwatch for Heroku.**   
+**Monitor dyno errors and performance across all your heroku apps and take automated actions!**
 
 [![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg?style=flat-square)](https://www.python.org/dev/peps/pep-0008/)
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](./LICENSE.md)
 
 
 ## Motivation
@@ -21,7 +22,6 @@ This simple python / django application is aimed towards making the post-deploym
 - **Dyno Metrics**  
   Heroku outputs dyno metrics like `%CPU` and `memory` when you enable them, but we do not get access to the historical data in a queryable format for our own analysis or visualization
 
----
 
 ## Features
 
@@ -55,7 +55,6 @@ In its final form, the monitoring suite will contain the following:
 
 > Metrics Collection only applies to dynos that have metrics logging enabled
 
----
 ## Quick Start
 
 #### Deploy to Heroku
@@ -102,7 +101,7 @@ To quickly get started and test the app, you can deploy this application on your
 
 #### Done!
 
----
+
 
 ## Configuration and Usage
 
@@ -122,7 +121,7 @@ This is a python / django based application. Broadly you need the following to s
 
 - WIP
 
----
+
 
 
 ## FAQs
@@ -130,7 +129,7 @@ This is a python / django based application. Broadly you need the following to s
 - **Which logs are accessed to extract this info?**
     - Please refer this **[wiki](https://github.com/carnot-technologies/dyno-monitor/wiki/Log-access-and-samples)** on log access method and log samples
 
----
+
 
 ## Team
 
@@ -140,11 +139,11 @@ The following members have actively contributed to the source code and this repo
 - **[Juhi Kulkarni](https://github.com/juhi04)**
 - **[Prathamesh Joshi](https://github.com/prathamesh1729)**
 
----
+
 
 ## License
 
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
-- **[MIT license](http://opensource.org/licenses/mit-license.php)**
+- **[MIT license](./LICENSE.md)**
 - Copyright (c) 2020 Carnot Technologies Pvt Ltd
