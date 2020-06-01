@@ -1,39 +1,61 @@
-# Heroku Dyno Monitoring & Alerting
-
-This project is useful for keeping a tab on heroku dyno errors and performance metrics across your different heroku apps. This project is aimed towards making the post deployment lifecycle easy and automated for the end users.
-
 ![Heroku Dyno Management](https://github.com/carnot-technologies/dyno-monitor/blob/master/heroku.png)
 
-In its final form, the app will (hopefully) contain the following features:
+# Heroku Dyno Monitoring & Alerting
 
-### Error Monitoring
+**Your Cloudwatch for Heroku. Monitor dyno errors and performance across all your heroku apps and take automated actions!**
 
-- :heavy_check_mark: **Generic Dyno Error** Monitoring (R13, R14 memory errors and other Rxx errors). You can configure the Rxx Error Rules from the admin interface
-- :heavy_check_mark: **Web Specific Dyno Error** Monitoring (H12, H13, H18 and other Hxx errors). Configuration via admin interface
-- :hourglass_flowing_sand: **Web Dyno Failed Requests** Monitoring (5xx errors)
+[![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg?style=flat-square)](https://www.python.org/dev/peps/pep-0008/)
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
 
-### Alerting
 
-- :heavy_check_mark: **Email alerts** Setup email by entering your SMTP server details and recipients. Then configure alerts from the admin dashboard
+## Motivation
+
+This simple python / django application is aimed towards making the post-deployment lifecycle easy and automated for the end users. Here are the main use-cases we came across that motivated us to build this app:
+
+- **Elusive Dyno Level Errors**  
+  Certain heroku dyno level errors (`R13`, `R14`, `H12`, `H10`) are not easy to auto-identify as they show up only in application logs and the metrics dashboard of your heroku app. But they heavily impact app performance, so quickly identifying and acting on them can be critical
+- **Memory Leaking Applications**  
+  Sometimes you may have an app that is occasionally or gradually leaking memory and you do not have the time and / or resources to debug the source of the leak. A quicker fix can be to restart the dyno when its RAM quota exceeds
+- **Watchdog**  
+  It is important to have a watchdog app that constantly looks at the status of your critical web services, or databases so that you are alerted in case of SOS and automatically takes corrective actions where possible
+- **Dyno Metrics**  
+  Heroku outputs dyno metrics like `%CPU` and `memory` when you enable them, but we do not get access to the historical data in a queryable format for our own analysis or visualization
+
+---
+
+## Features
+
+In its final form, the monitoring suite will contain the following:
+
+#### Error Monitoring
+
+- :heavy_check_mark: Monitor and catch **Generic Dyno Errors** (R13, R14 memory errors and other Rxx errors). You can configure the Rxx Error Rules from the admin interface
+- :heavy_check_mark: Monitor and catch **Web Specific Dyno Error** (H12, H13, H18 and other Hxx errors). Configuration via admin interface
+- :hourglass_flowing_sand: Monitor **Web Dyno Failed Requests** (5xx errors)
+
+#### Alerting
+
+- :heavy_check_mark: **Email alerts** Setup email by entering your SMTP server details and recipients. Then configure your alert rules from the admin dashboard
 - :hourglass_flowing_sand: **SMS alerts** Configure SMS alerts by entering your Infobip SMS provider details. If you use some other service (twilio, msg91 etc) you can easily plugin your own implementation
 
-### Actions
+#### Actions
 
 - :heavy_check_mark: **Restart actions** Perform basic recovery actions like dyno restart or app restart when a certain alert is breached
 
-### Metrics Collection
+#### Status Checks
 
-For dynos that have metrics logging enabled, the following metrics will be collected
+- :soon: **Web server** up / down status checks. Specify the *endpoint* to check, *frequency* and *timeout*
+- :soon: **Redis instance** availability status checks. Specify *redis url*, *list* name & *threshold* (for list / queue length monitoring if required), *frequency* and *timeout*
+- :soon: **Postgres instance** availability status check. Specify the *database url*, *table* name (to check for existence if required), *frequency* and *timeout*
+
+#### Metrics Collection
+
 - :soon: **RAM usage** metric per dyno type. Collection and logging
 - :soon: **Load %CPU** per dyno type. Collection and logging
 
-### Status Checks
+> Metrics Collection only applies to dynos that have metrics logging enabled
 
-- :soon: **Web server** status checks. Specify the endpoint to check, frequency and timeout
-- :soon: **Redis instance** status checks. Specify redis url, list name & threshold (for QL checking if required), frequency and timeout
-- :soon: **Postgres instance** status check. Specify the DB url, table name (to check for existence if required), frequency and timeout
-
------------------
+---
 ## Quick Start
 
 #### Deploy to Heroku
@@ -46,11 +68,11 @@ To quickly get started and test the app, you can deploy this application on your
 - It auto-detects all your heroku apps and dynos. This process can take upto a minute depending on the number of apps in your account
 - You can then visit your app's admin page at https://<your-app-name>.herokuapp.com/admin/ and start adding `Hxx Error` and `Rxx Error` rules against your dynos
 
-#### Environment Configuration
+#### Configure the Environment
 
 - Required environment variables
   - `HEROKU_API_KEY` - To access the logs from different heroku apps in your accounts for which alerts have been configured
-  - `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_PASSWORD`, `DJANGO_SUPERUSER_EMAIL` - These three variables are required at the start to create a superuser. Once a superuser is created, these can be removed
+  - `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_PASSWORD`, `DJANGO_SUPERUSER_EMAIL` - These three variables are required at the start to create a superuser
 
 - To enable emails, make sure the following environment variables are exported
   ```bash
@@ -63,9 +85,26 @@ To quickly get started and test the app, you can deploy this application on your
   heroku config:set RECIPIENTS=admin.one@abc.com,admin.two@abc.com --app <YOUR_APP_NAME>
   ```
 
------------------
+#### Add Rules & Actions
 
-## How to configure and use?
+- Login to the admin panel - it will located at `https://<your-app-name>.herokuapp.com/admin/` using the credentials you provided earlier
+- You should see the auto-detected `apps` and `dynos` in your heroku account
+- You can now add rules. To detect and act on an `R14` error on a certain dyno, add an `Rxx Error`
+  - Pick the **dyno** on which you want to apply the error
+  - Pick the error **category**. In our case `R14`
+  - Enter the **least count** which is the minimum number of occurrences required for the rule to be considered breached, within the **time window** number of seconds
+  - Check **email alert** if you want email alerts when this happens (Requires mail to be configured)
+  - Pick the **action** to be taken when the alert condition is breached. Possible options are `no-action`, `restart-dyno` and `restart-app`
+- Save the rule and you are done! The **log source** and **log dyno** is assigned based on your input dyno type and error category
+
+> For email sending per topic (app + dyno + error category), a cooling period applies which can be configured from the `EMAIL_COOLING_PERIOD_PER_TOPIC` environment variable   
+> Also for app restart and dyno restart actions respective cooling periods apply. They can be configured via `APP_RESTART_COOLING_PERIOD` and `DYNO_RESTART_COOLING_PERIOD` respectively
+
+#### Done!
+
+---
+
+## Configuration and Usage
 
 This is a python / django based application. Broadly you need the following to set it up:
 - `Python 3` - we have verified it on Python 3.6
@@ -83,93 +122,29 @@ This is a python / django based application. Broadly you need the following to s
 
 - WIP
 
---------------------
-
-## Log access and samples
-
-### Accessing heroku logs
-
-- Ideally the _right approach_ to consume heroku logs is to setup a [Syslog or HTTPS log drain](https://devcenter.heroku.com/articles/log-drains) and have a dedicated log server to parse the logs for you
-- But our basic assumption is we will not read a lot of (typically) large logs from applications, but look at the few but highly useful logs generated under `source=heroku`
-- We can get this stream of logs using heroku3 python library
-```python
-import heroku3
-app = heroku3.from_key(<YOUR_API_KEY>).app(<YOUR_APP_NAME>)
-app.stream_log(source="app", dyno="worker", lines=10)
-```
-
-### Error Codes Log
-
-A set of errors from the platform we will aim to detect. Please see the [full set of error codes](https://devcenter.heroku.com/articles/error-codes)
-
-- H10 - App Crashed (`source=heroku`, `dyno=router`)
-  ```
-  2010-10-06T21:51:12-07:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path="/" host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
-  ```
-
-- H12 - Request Timeout (`source=heroku`, `dyno=router`)
-  ```
-  2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H12 desc="Request timeout" method=GET path="/" host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=6ms service=30001ms status=503 bytes=0
-  ```
-
-- R14 - Memory Quota Exceeded (`source=heroku`, `dyno=worker`)
-  ```
-  2011-05-03T17:40:10+00:00 heroku[worker.1]: Process running mem=1028MB(103.3%)
-  2011-05-03T17:40:11+00:00 heroku[worker.1]: Error R14 (Memory quota exceeded)
-  ```
-
-- R15 - Memory Quota Vastly Exceeded (`source=heroku`, `dyno=worker`)
-  ```
-  2011-05-03T17:40:10+00:00 heroku[worker.1]: Process running mem=1029MB(201.0%)
-  2011-05-03T17:40:11+00:00 heroku[worker.1]: Error R15 (Memory quota vastly exceeded)
-  2011-05-03T17:40:11+00:00 heroku[worker.1]: Stopping process with SIGKILL
-  2011-05-03T17:40:12+00:00 heroku[worker.1]: Process exited
-  ```
-
-- H80 - Maintenance Mode (`source=heroku`, `dyno=router`)
-  ```
-  2010-10-06T21:51:07-07:00 heroku[router]: at=info code=H80 desc="Maintenance mode" method=GET path="/" host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
-  ```
-
-- H99 or R99 - Platform Error (`source=heroku`, `dyno=router`)
-  ```
-  2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H99 desc="Platform error" method=GET path="/" host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
-  ```
-
-### General Metrics Log
-
-- Web Request Logs for web dynos (`source=heroku`, `dyno=router`)
-  ```
-  2020-05-21T09:27:33.001084+00:00 heroku[router]: at=info method=POST path="/api/card/964/query" host=carnot-metabase.herokuapp.com request_id=0b27af66-8bee-4f7f-bca9-96a7b3851130 fwd="115.96.38.61" dyno=web.1 connect=1ms service=40ms status=200 bytes=1811 protocol=https
-  2020-05-21T09:27:33.334719+00:00 heroku[router]: at=info method=GET path="/app/assets/img/no_results.svg" host=carnot-metabase.herokuapp.com request_id=7b451cee-5bfe-449b-af67-ee54b6c469ea fwd="115.96.38.61" dyno=web.1 connect=1ms service=12ms status=200 bytes=3274 protocol=https
-  ```
+---
 
 
-- Web dyno metrics (`source=heroku`, `dyno=web`)
-  ```
-  2020-05-21T09:23:13.271104+00:00 heroku[web.1]: source=web.1 dyno=heroku.103402527.ea2fc07d-d807-4864-a2c3-5cac3531c914 sample#load_avg_1m=0.00 sample#load_avg_5m=0.01 sample#load_avg_15m=0.06
-  2020-05-21T09:23:13.271104+00:00 heroku[web.1]: source=web.1 dyno=heroku.103402527.ea2fc07d-d807-4864-a2c3-5cac3531c914 sample#memory_total=906.01MB sample#memory_rss=835.69MB sample#memory_cache=0.29MB sample#memory_swap=70.03MB sample#memory_pgpgin=485104pages sample#memory_pgpgout=282335pages sample#memory_quota=1024.00MB
-  ```
+## FAQs
 
-- Worker dyno metrics (`source=heroku`, `dyno=worker`)
-  ```
-  2020-05-21T13:37:36.303415+00:00 heroku[worker.1]: Starting process with command `python worker-manager.py`
-  2020-05-21T13:37:36.970517+00:00 heroku[worker.1]: State changed from starting to up
-  2020-05-21T13:37:51.999653+00:00 heroku[worker.1]: source=worker.1 dyno=heroku.80178655.00ef45ff-41d2-40c8-87c8-a1f847fe2576 sample#memory_total=407.75MB sample#memory_rss=392.41MB sample#memory_cache=15.34MB sample#memory_swap=0.00MB sample#memory_pgpgin=129484pages sample#memory_pgpgout=27656pages sample#memory_quota=512.00MB
-  2020-05-21T13:38:13.88587+00:00 heroku[worker.1]: source=worker.1 dyno=heroku.80178655.00ef45ff-41d2-40c8-87c8-a1f847fe2576 sample#memory_total=409.36MB sample#memory_rss=394.02MB sample#memory_cache=15.34MB sample#memory_swap=0.00MB sample#memory_pgpgin=129906pages sample#memory_pgpgout=27666pages sample#memory_quota=512.00MB
-  2020-05-21T13:38:35.665206+00:00 heroku[worker.1]: source=worker.1 dyno=heroku.80178655.00ef45ff-41d2-40c8-87c8-a1f847fe2576 sample#load_avg_1m=0.30
-  2020-05-21T13:38:35.665308+00:00 heroku[worker.1]: source=worker.1 dyno=heroku.80178655.00ef45ff-41d2-40c8-87c8-a1f847fe2576 sample#memory_total=409.54MB sample#memory_rss=394.20MB sample#memory_cache=15.34MB sample#memory_swap=0.00MB sample#memory_pgpgin=130055pages sample#memory_pgpgout=27769pages sample#memory_quota=512.00MB
-  ```
+- **Which logs are accessed to extract this info?**
+    - Please refer this **[wiki](https://github.com/carnot-technologies/dyno-monitor/wiki/Log-access-and-samples)** on log access method and log samples
 
-- Heroku Postgres Health logs (`source=app`, `dyno=heroku-postgres`)
-  ```
-  2020-05-21T09:31:00+00:00 app[heroku-postgres]: source=HEROKU_POSTGRESQL_ROSE addon=postgresql-clear-67109 sample#current_transaction=2445712089 sample#db_size=37066259591bytes sample#tables=150 sample#active-connections=84 sample#waiting-connections=0 sample#index-cache-hit-rate=0.98701 sample#table-cache-hit-rate=0.96767 sample#load-avg-1m=0.06 sample#load-avg-5m=0.115 sample#load-avg-15m=0.165 sample#read-iops=17.711 sample#write-iops=6.7273 sample#tmp-disk-used=33849344 sample#tmp-disk-available=72944943104 sample#memory-total=4044972kB sample#memory-free=87596kB sample#memory-cached=3350760kB sample#memory-postgres=375912kB     
-  2020-05-21T09:30:00+00:00 app[heroku-postgres]: source=HEROKU_POSTGRESQL_RED addon=postgresql-tapered-27885 sample#current_transaction=867971978 sample#db_size=33737964679bytes sample#tables=190 sample#active-connections=12 sample#waiting-connections=0 sample#index-cache-hit-rate=0.99551 sample#table-cache-hit-rate=0.62029 sample#load-avg-1m=0.145 sample#load-avg-5m=0.105 sample#load-avg-15m=0.115 sample#read-iops=0.016949 sample#write-iops=0.10169 sample#tmp-disk-used=33849344 sample#tmp-disk-available=72944943104 sample#memory-total=4044980kB sample#memory-free=399344kB sample#memory-cached=3297112kB sample#memory-postgres=68888kB
-  ```
+---
 
-- Actual Postgres Instance logs (`source=app`, `dyno=postgres`)
-  ```
-  2020-05-21T09:33:12+00:00 app[postgres.26875]: [RED] [1846262-3]  sql_error_code = 23503 STATEMENT:  COMMIT
-  2020-05-21T09:33:12+00:00 app[postgres.26875]: [RED] [1846263-1]  sql_error_code = 23503 ERROR:  insert or update on table "devices_devicelatestdata" violates foreign key constraint "devices_devicelatest_device_fk_id_c404589b_fk_devices_d"
-  2020-05-21T09:33:12+00:00 app[postgres.26875]: [RED] [1846263-2]  sql_error_code = 23503 DETAIL:  Key (device_fk_id)=(5188) is not present in table "devices_device".
-  ```
+## Team
+
+The following members have actively contributed to the source code and this repository:
+
+- **[Pushkar Limaye](https://github.com/pushkar24)**
+- **[Juhi Kulkarni](https://github.com/juhi04)**
+- **[Prathamesh Joshi](https://github.com/prathamesh1729)**
+
+---
+
+## License
+
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+
+- **[MIT license](http://opensource.org/licenses/mit-license.php)**
+- Copyright (c) 2020 Carnot Technologies Pvt Ltd
