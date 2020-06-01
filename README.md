@@ -2,8 +2,7 @@
 
 # Heroku Dyno Monitoring & Alerting
 
-**Your Cloudwatch for Heroku.**   
-**Monitor dyno errors and performance across all your heroku apps and take automated actions!**
+**Your Cloudwatch for Heroku. Monitor dyno errors and performance across all your heroku apps and take automated actions!**
 
 [![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg?style=flat-square)](https://www.python.org/dev/peps/pep-0008/)
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](./LICENSE.md)
@@ -111,13 +110,13 @@ This is a python / django based application. Broadly you need the following to s
 - `postgres` - access to a small postgres server instance for data logging and storage. RAM required less than 1GB
 - `redis` - a small fast-access cache for storing certain details. Less than 25 MB
 
-### Configure the environment
+#### Configure the environment
 
 - Setup the virtualenv and install all dependencies
 - Much of the application is controlled by its environment variables. A few variables are necessary, others are optional
 - Mandatory environment variables
 
-### Initial setup scripts
+#### Initial setup scripts
 
 - WIP
 
