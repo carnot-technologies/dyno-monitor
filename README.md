@@ -1,4 +1,4 @@
-![Heroku Dyno Management](https://github.com/carnot-technologies/dyno-monitor/blob/master/heroku.png)
+![Heroku Dyno Management](./images/metrics-events.jpg)
 
 # Heroku Dyno Monitoring & Alerting
 
@@ -7,6 +7,7 @@
 [![PEP8](https://img.shields.io/badge/code%20style-pep8-orange.svg?style=flat-square)](https://www.python.org/dev/peps/pep-0008/)
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](./LICENSE.md)
 
+<img style="float: right;" src="./images/heroku.png">
 
 ## Table of Contents
 
