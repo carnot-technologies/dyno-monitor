@@ -13,7 +13,7 @@
 - [Motivation](#motivation)
 - [Features](#features)
 - [Quick Start](#quick-start)
-- [Configuration and Usage](#configuration-and-usage)
+- [Local Setup](#local-setup)
 - [FAQs](#faqs)
 - [Team](#team)
 - [License](#license)
@@ -24,13 +24,13 @@
 This simple python / django application is aimed towards making the post-deployment lifecycle easy and automated for the end users. Here are the main use-cases we came across that motivated us to build this app:
 
 - **Elusive Dyno Level Errors**  
-  Certain heroku dyno level errors (`R13`, `R14`, `H12`, `H10`) are not easy to auto-identify as they show up only in application logs and the metrics dashboard of your heroku app. But they heavily impact app performance, so quickly identifying and acting on them can be critical
+  Heroku dyno level errors (`R13`, `R14`, `H12`, `H10`) are *not easy to capture* as they show up only in application logs and the metrics dashboard but they heavily impact app performance
 - **Memory Leaking Applications**  
-  Sometimes you may have an app that is occasionally or gradually leaking memory and you do not have the time and / or resources to debug the source of the leak. A quicker fix can be to restart the dyno when its RAM quota exceeds
+  You may have an app that is *leaking memory* and you do not have the bandwidth or the need to identify the source of the leak. A quicker fix can be to *restart the dyno* when its RAM quota exceeds
 - **Watchdog**  
-  It is important to have a watchdog app that constantly looks at the status of your critical web services, or databases so that you are alerted in case of SOS and automatically takes corrective actions where possible
+  A watchdog app constantly looks at the status of your critical web services, or databases so that you are *alerted in case of SOS*. An ideal watchdog takes automated corrective actions
 - **Dyno Metrics**  
-  Heroku outputs dyno metrics like `%CPU` and `memory` when you enable them, but we do not get access to the historical data in a queryable format for our own analysis or visualization
+  Heroku outputs dyno metrics like `%CPU` and `memory` when you enable them, but this data is *not accessible in a queryable format* for later analysis
 
 
 ## Features
@@ -73,70 +73,110 @@ To quickly get started and test the app, you can deploy this application on your
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/carnot-technologies/dyno-monitor/tree/master)
 
-- Post deployment, the app creates all the required tables and the superuser account
-- It auto-detects all your heroku apps and dynos. This process can take upto a minute depending on the number of apps in your account
-- You can then visit your app's admin page at https://<your-app-name>.herokuapp.com/admin/ and start adding `Hxx Error` and `Rxx Error` rules against your dynos
+Post deployment the app
+- auto-detects all existing heroku apps and dynos in your account
+- makes the admin interface available at `https://<your-app-name>.herokuapp.com/admin/`
 
 #### Configure the Environment
 
 - Required environment variables
-  - `HEROKU_API_KEY` - To access the logs from different heroku apps in your accounts for which alerts have been configured
-  - `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_PASSWORD`, `DJANGO_SUPERUSER_EMAIL` - These three variables are required at the start to create a superuser
+  - `HEROKU_API_KEY` - To access the logs from different heroku apps in your account
+  - `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_PASSWORD`, `DJANGO_SUPERUSER_EMAIL` - Superuser credentials to access admin interface   
 
-- To enable emails, make sure the following environment variables are exported
-  ```bash
-  heroku config:set ENABLE_EMAILS=1
-  heroku config:set EMAIL_HOST=email-server.abc.com --app <YOUR_APP_NAME>
-  heroku config:set EMAIL_PORT=587 --app <YOUR_APP_NAME>
-  heroku config:set EMAIL_HOST_PASSWORD=xxxxxxxxxxxxxxxxxxxxx --app <YOUR_APP_NAME>
-  heroku config:set EMAIL_HOST_USER=xxxxxxxxxxxxxxxxxxxxx --app <YOUR_APP_NAME>
-  heroku config:set SERVER_EMAIL=postmaster@abc.com --app <YOUR_APP_NAME>
-  heroku config:set RECIPIENTS=admin.one@abc.com,admin.two@abc.com --app <YOUR_APP_NAME>
-  ```
+
+
+- Configure emails (optional)
+  - `ENABLE_EMAILS` 0: disable (default), 1: enable
+  - `EMAIL_HOST` Example **email-server.abc.com**
+  - `EMAIL_PORT` Example **587**
+  - `EMAIL_HOST_PASSWORD` SMTP password
+  - `EMAIL_HOST_USER` SMTP username
+  - `SERVER_EMAIL` or the sender's email
+  - `RECIPIENTS` list of recipient email addresses in comma seperated format (no spaces) Example: **admin.one@abc.com,admin.two@abc.com**
 
 #### Add Rules & Actions
 
-- Login to the admin panel - it will located at `https://<your-app-name>.herokuapp.com/admin/` using the credentials you provided earlier
-- You should see the auto-detected `apps` and `dynos` in your heroku account
-- You can now add rules. To detect and act on an `R14` error on a certain dyno, add an `Rxx Error`
+- Login to the admin panel - it will be located at `https://<your-app-name>.herokuapp.com/admin/`
+- You should see `apps` and `dynos` auto-detected from your heroku account
+- You can now start adding rules!
+- To detect and act on an `R14` error on a certain dyno, add an `Rxx Error`
   - Pick the **dyno** on which you want to apply the error
   - Pick the error **category**. In our case `R14`
   - Enter the **least count** which is the minimum number of occurrences required for the rule to be considered breached, within the **time window** number of seconds
-  - Check **email alert** if you want email alerts when this happens (Requires mail to be configured)
+  - Check **email alert** if you want email alerts (Requires mail to be configured)
   - Pick the **action** to be taken when the alert condition is breached. Possible options are `no-action`, `restart-dyno` and `restart-app`
-- Save the rule and you are done! The **log source** and **log dyno** is assigned based on your input dyno type and error category
+- Save the rule and you are **done!**
 
-> For email sending per topic (app + dyno + error category), a cooling period applies which can be configured from the `EMAIL_COOLING_PERIOD_PER_TOPIC` environment variable   
+> For email sending per topic (app:dyno:error category), a cooling period applies which can be configured from the `EMAIL_COOLING_PERIOD_PER_TOPIC` environment variable   
 > Also for app restart and dyno restart actions respective cooling periods apply. They can be configured via `APP_RESTART_COOLING_PERIOD` and `DYNO_RESTART_COOLING_PERIOD` respectively
 
-#### Done!
 
+## Local Setup
 
-
-## Configuration and Usage
-
-This is a python / django based application. Broadly you need the following to set it up:
+This is a django based application. You need the following:
 - `Python 3` - we have verified it on Python 3.6
-- `virtualenv` - or similar program to create and manage your virtual environment
-- `postgres` - access to a small postgres server instance for data logging and storage. RAM required less than 1GB
-- `redis` - a small fast-access cache for storing certain details. Less than 25 MB
+- `virtualenv` - or similar program to manage your virtual environment
+- `postgres` - small instance. RAM required less than 1GB
+- `redis` - small instance less than 25 MB storage
 
 #### Configure the environment
 
-- Setup the virtualenv and install all dependencies
-- Much of the application is controlled by its environment variables. A few variables are necessary, others are optional
-- Mandatory environment variables
+- Create a virtual environment and install all dependencies
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+
+- Add environment variables
+  - [Required environment variables](#configure-the-environment)
+  - `DATABASE_URL` containing the URL of your postgres database
+  - `REDIS_URL` containing the URL of your redis instance  
+
+
+- Ensure you are able to run the server using
+  ```bash
+  # Dev server
+  python manage.py runserver
+  # Deployment server
+  gunicorn dynomonitor.wsgi
+  ```
 
 #### Initial setup scripts
 
-- WIP
+- Run the initialization script as follows:
+  ```bash
+  bash initialize.sh
+  ```
+  It will
+   - create tables in postgres,
+   - setup the superuser account and
+   - auto-detect your heroku apps and dynos
 
 
+
+- (Optional) You can create another superuser using:
+  ```bash
+  python manage.py createsuperuser
+  ```
+
+- (Optional) You can rerun auto detection of heroku apps too:
+  ```bash
+  python manage.py shell --command="from utils.rule_helper import auto_detect_heroku_apps; auto_detect_heroku_apps()"
+  ```
+
+- Finally, run the server again, and access the admin interface at `http://127.0.0.1:8000/admin` from your browser
+
+#### Done!
+If you want to add more features or notice a bug, feel free to report them as **[issues](https://github.com/carnot-technologies/dyno-monitor/issues)** and **[create PRs](https://github.com/carnot-technologies/dyno-monitor/pulls)**. Your contributions are welcome!
 
 
 ## FAQs
 
-- **Which logs are accessed to extract this info?**
+- **I am not able to deploy to heroku / run the app locally. What should I do?**
+    - Please [raise an issue](https://github.com/carnot-technologies/dyno-monitor/issues) and share the error logs you are getting. We will try our best to help :)
+
+
+- **Which logs are accessed to extract the errors & metrics info?**
     - Please refer this **[wiki](https://github.com/carnot-technologies/dyno-monitor/wiki/Log-access-and-samples)** on log access method and log samples
 
 
