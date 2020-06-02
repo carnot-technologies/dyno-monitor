@@ -8,6 +8,17 @@
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](./LICENSE.md)
 
 
+## Table of Contents
+
+- [Motivation](#motivation)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Configuration and Usage](#configuration-and-usage)
+- [FAQs](#faqs)
+- [Team](#team)
+- [License](#license)
+
+
 ## Motivation
 
 This simple python / django application is aimed towards making the post-deployment lifecycle easy and automated for the end users. Here are the main use-cases we came across that motivated us to build this app:
