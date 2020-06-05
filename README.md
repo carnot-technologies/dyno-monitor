@@ -16,7 +16,7 @@
 - [Quick Start](#quick-start)
 - [Local Setup](#local-setup)
 - [FAQs](#faqs)
-- [Team](#team)
+- [Contributors](#contributors)
 - [License](#license)
 
 
@@ -182,7 +182,7 @@ If you want to add more features or notice a bug, feel free to report them as **
 
 
 
-## Team
+## Contributors
 
 The following members have actively contributed to the source code and this repository:
 
