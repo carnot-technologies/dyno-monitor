@@ -42,7 +42,7 @@ def stream_logs(app_name, source, dyno):
         try:
             for line in HerokuInterface().stream_log(app_name=app_name, source=source, dyno=dyno, timeout=100):
                 # Search for the required keywords in this line
-                # logging.debug(line.decode('utf-8'))
+                logging.debug(line.decode('utf-8'))
                 exit = parse(line.decode('utf-8'), app_name, source, dyno)
 
                 if exit:

@@ -83,7 +83,7 @@ def notify(rp, action_taken=False):
             # Send email
             logging.warning("Sending email. Topic: {}:{}:{}".format(rp['app'], rp['dyno'], rp['category']))
             sub = "{} Error Detected in {}:{}".format(rp['category'], rp['app'], rp['dyno'])
-            msg = "Atleast {} error(s) of type {} detected in the last {} seconds".format(rp['least_count'], rp['category'], rp['time_window'])
+            msg = "Atleast {} error(s) of type {} detected in the last {} seconds. ".format(rp['least_count'], rp['category'], rp['time_window'])
             msg += "Action taken: {}".format(rp['action']) if action_taken else ""
             send_email(sub, msg)
             Cacher().set_last_email_time(rp['app'], rp['dyno'], rp['category'])
