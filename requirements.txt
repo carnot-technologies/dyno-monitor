@@ -18,5 +18,5 @@ requests==2.23.0
 six==1.14.0
 sqlparse==0.3.1
 tzlocal==2.1
-urllib3==1.25.9
+urllib3==1.26.17
 whitenoise==5.1.0
